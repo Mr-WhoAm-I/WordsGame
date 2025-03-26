@@ -87,7 +87,6 @@ namespace WordsGame
         static string GetNewWord()
         {
             StringBuilder input = new StringBuilder();
-            byte length = 0;
             while (!isTimeOut)
             {
                 if (Console.KeyAvailable)
