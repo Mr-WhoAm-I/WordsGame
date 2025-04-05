@@ -1,42 +1,33 @@
 ﻿using System.Globalization;
 using System.Text;
 using WordsGame.Resources;
+
 namespace WordsGame
 {
     class Program
     {
+        const int TIMER_DURATION = 8000;
+        const int MAX_LENGTH = 30;
+        const int MIN_LENGTH = 8;
+        const int MIN_NEW_WORD_LENGTH = 3;
         static string baseWord = string.Empty;
         static string newWord = string.Empty;
         static string firstPlayer = string.Empty;
-        static Timer turnTimer = new Timer(TimerCallback, null, -1, -1);
+        static Timer turnTimer = new(TimerCallback, null, -1, -1);
         static bool isTimeOut = false;
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Выберите язык/Select language:\n 1 - Русский, 2 - English, Default - English");
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo(Console.ReadLine() == "1" ? "ru" : "en");
-
-            string player = Resource.Player;
-            List<string> usedWords = new List<string>();
-            Queue<string> players = new([$"{player} 1", $"{player} 2"]);
-
-            firstPlayer = players.Peek(); 
-
-            Console.WriteLine(Resource.Meething);
-
-            baseWord = GetValidBaseWord();
-            Console.WriteLine(Resource.StartGame + baseWord);
-
+            InitializeGame(out Queue<string> players, out List<string> usedWords);
             bool prevFailed = false;
-            while (players.Count >= 1)
+
+            while (players.Count > 0)
             {
-                isTimeOut = false;
                 string activePlayer = players.Dequeue();
 
-                Console.Write($"{activePlayer} {Resource.Turn} (>2): ");
-                turnTimer.Change(8000, -1);
-                newWord = GetNewWord();
-                bool isValid = !usedWords.Contains(newWord) && IsValidWord();
-                if (isTimeOut || !isValid)
+                bool moveSuccess = PlayTurn(activePlayer, usedWords, out bool validMove);
+
+                if (!moveSuccess)
                 {
                     switch ((prevFailed, activePlayer == firstPlayer))
                     {
@@ -48,7 +39,7 @@ namespace WordsGame
                             Console.WriteLine($"{Resource.LastMove} {players.Peek()}");
                             continue;
                         case (false, false):
-                            Console.WriteLine($"{firstPlayer}  {Resource.Win}!");
+                            Console.WriteLine($"{firstPlayer} {Resource.Win}!");
                             return;
                     }
                 }
@@ -59,17 +50,49 @@ namespace WordsGame
 
                 if (players.Count == 0)
                 {
-                    Console.WriteLine(!isValid ? Resource.Draw : activePlayer + ' ' + Resource.Win + '!');
+                    Console.WriteLine(validMove ? $"{activePlayer} {Resource.Win}!" : $"{Resource.Draw}!");
                     break;
                 }
 
-                Console.WriteLine($" > {newWord}");
-                usedWords.Add(newWord);
                 players.Enqueue(activePlayer);
             }
+        }
 
+        static void InitializeGame(out Queue<string> players, out List<string> usedWords)
+        {
+            SelectLanguage();
 
+            string player = Resource.Player;
+            players = new Queue<string>([$"{player} 1", $"{player} 2"]);
+            usedWords = [];
+            firstPlayer = players.Peek();
 
+            Console.WriteLine(Resource.Meething);
+            baseWord = GetValidBaseWord();
+            Console.WriteLine(Resource.StartGame + baseWord);
+        }
+
+        static bool PlayTurn(string activePlayer, List<string> usedWords, out bool validMove)
+        {
+            isTimeOut = false;
+            Console.Write($"{activePlayer} {Resource.Turn}: ");
+            turnTimer.Change(TIMER_DURATION, -1);
+            newWord = GetNewWord();
+
+            validMove = !usedWords.Contains(newWord) && IsValidWord();
+            if (!isTimeOut && validMove)
+            {
+                Console.WriteLine($" > {newWord}");
+                usedWords.Add(newWord);
+                return true;
+            }
+            return false;
+        }
+
+        static void SelectLanguage()
+        {
+            Console.WriteLine("Выберите язык/Select language:\n1 - Русский, 2 - English, Default - English");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(Console.ReadLine() == "1" ? "ru" : "en");
         }
 
         static string GetValidBaseWord()
@@ -80,7 +103,7 @@ namespace WordsGame
                 Console.Write(Resource.EnterBaseWord);
                 word = (Console.ReadLine() ?? "").Trim().ToLower();
             }
-            while (word.Length < 8 || word.Length > 30);
+            while (word.Length < MIN_LENGTH || word.Length > MAX_LENGTH);
             return word;
         }
 
@@ -105,7 +128,7 @@ namespace WordsGame
 
                     if (key.Key == ConsoleKey.Enter)
                     {
-                        if (input.Length >= 3)
+                        if (input.Length >= MIN_NEW_WORD_LENGTH)
                             break;
                         else
                             Console.Write($"\n{Resource.MoreChars}: ");
@@ -121,8 +144,8 @@ namespace WordsGame
 
             Console.WriteLine();
             return input.ToString().Trim().ToLower();
-
         }
+
         static bool IsValidWord()
         {
             return newWord.All(c => baseWord.Count(x => x == c) >= newWord.Count(y => y == c));
