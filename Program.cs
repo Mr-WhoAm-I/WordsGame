@@ -10,6 +10,7 @@ namespace WordsGame
         const int MAX_LENGTH = 30;
         const int MIN_LENGTH = 8;
         const int MIN_NEW_WORD_LENGTH = 3;
+
         static string baseWord = string.Empty;
         static string newWord = string.Empty;
         static string firstPlayer = string.Empty;
@@ -25,7 +26,7 @@ namespace WordsGame
             {
                 string activePlayer = players.Dequeue();
 
-                bool moveSuccess = PlayTurn(activePlayer, usedWords, out bool validMove);
+                bool moveSuccess = TryExecTurn(activePlayer, usedWords, out bool validMove);
 
                 if (!moveSuccess)
                 {
@@ -72,7 +73,7 @@ namespace WordsGame
             Console.WriteLine(Resource.StartGame + baseWord);
         }
 
-        static bool PlayTurn(string activePlayer, List<string> usedWords, out bool validMove)
+        static bool TryExecTurn(string activePlayer, List<string> usedWords, out bool validMove)
         {
             isTimeOut = false;
             Console.Write($"{activePlayer} {Resource.Turn}: ");
