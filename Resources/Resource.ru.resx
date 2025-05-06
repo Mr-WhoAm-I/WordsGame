@@ -159,6 +159,15 @@
     <value>Текущий счет: {0} {1} - {2} {3}, Ничьи: {4}</value>
   </data>
   <data name="EnterPlayerName" xml:space="preserve">
-    <value>Введите имя игрока:</value>
+    <value>Введите имя игрока {0}: </value>
+  </data>
+  <data name="ShowWordsTitle" xml:space="preserve">
+    <value>Слова за эту игру:</value>
+  </data>
+  <data name="TotalScore" xml:space="preserve">
+    <value>Общий счёт всех игроков:</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Продолжаем?</value>
   </data>
 </root>

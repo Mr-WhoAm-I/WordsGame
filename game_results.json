@@ -1,0 +1,62 @@
+[
+  {
+    "Player1": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Player2": "\u0412\u0430\u0441\u044F",
+    "Winner": "\u0412\u0430\u043B\u0435\u0440\u0430"
+  },
+  {
+    "Player1": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Player2": "\u0412\u0430\u0441\u044F",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "\u0412\u0430\u0441\u044F",
+    "Player2": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "\u0412\u0430\u0441\u044F",
+    "Player2": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Winner": "\u0412\u0430\u043B\u0435\u0440\u0430"
+  },
+  {
+    "Player1": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Player2": "\u0412\u0430\u0441\u044F",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Player2": "\u0412\u0430\u043B\u0435\u0440\u0430",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "\u0412\u0430\u0441\u044F",
+    "Player2": "\u0412\u0430\u0441\u044F",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "",
+    "Player2": "",
+    "Winner": "Draw"
+  },
+  {
+    "Player1": "\u0432\u0430\u0441\u044F",
+    "Player2": "\u0432\u0430\u043B\u0435\u0440\u0430",
+    "Winner": "\u0432\u0430\u043B\u0435\u0440\u0430"
+  },
+  {
+    "Player1": "\u0432\u0430\u043B\u0435\u0440\u0430",
+    "Player2": "\u0432\u0430\u043B\u0435\u0440\u0430",
+    "Winner": "\u0432\u0430\u043B\u0435\u0440\u0430"
+  },
+  {
+    "Player1": "",
+    "Player2": "",
+    "Winner": ""
+  },
+  {
+    "Player1": "Player 1",
+    "Player2": "Player 2",
+    "Winner": "Player 2"
+  }
+]

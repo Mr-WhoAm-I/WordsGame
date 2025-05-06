@@ -31,7 +31,7 @@ namespace WordsGame.Resources {
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resource() {
         }
-
+        
         /// <summary>
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
@@ -61,6 +61,24 @@ namespace WordsGame.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Again?.
+        /// </summary>
+        internal static string Continue {
+            get {
+                return ResourceManager.GetString("Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Current store: {0} {1} - {2} {3}, draw: {4}.
+        /// </summary>
+        internal static string CurrentScore {
+            get {
+                return ResourceManager.GetString("CurrentScore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Draw.
         /// </summary>
         internal static string Draw {
@@ -75,6 +93,15 @@ namespace WordsGame.Resources {
         internal static string EnterBaseWord {
             get {
                 return ResourceManager.GetString("EnterBaseWord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Enter the player&apos;s name {0}: .
+        /// </summary>
+        internal static string EnterPlayerName {
+            get {
+                return ResourceManager.GetString("EnterPlayerName", resourceCulture);
             }
         }
         
@@ -97,7 +124,12 @@ namespace WordsGame.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Hello.
+        ///   Ищет локализованную строку, похожую на Welcome to the game &quot;Words&quot;!
+        ///Rules:
+        ///- Players take turns making words from the letters of a given word.
+        ///- Each letter can only be used as many times as it appears in the original word.
+        ///- Words must not be repeated.
+        ///- The game ends when one of the players cannot make a word..
         /// </summary>
         internal static string Meething {
             get {
@@ -124,6 +156,15 @@ namespace WordsGame.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Words for this game:.
+        /// </summary>
+        internal static string ShowWordsTitle {
+            get {
+                return ResourceManager.GetString("ShowWordsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Start the game! Original word: .
         /// </summary>
         internal static string StartGame {
@@ -138,6 +179,15 @@ namespace WordsGame.Resources {
         internal static string TimeIsUp {
             get {
                 return ResourceManager.GetString("TimeIsUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на General score of all players:.
+        /// </summary>
+        internal static string TotalScore {
+            get {
+                return ResourceManager.GetString("TotalScore", resourceCulture);
             }
         }
         

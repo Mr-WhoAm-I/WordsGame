@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.Text;
+using WordsGame.Models;
 using WordsGame.Resources;
+using WordsGame.Services;
 
 namespace WordsGame
 {
@@ -14,18 +16,36 @@ namespace WordsGame
         static string baseWord = string.Empty;
         static string newWord = string.Empty;
         static string firstPlayer = string.Empty;
-        static Timer turnTimer = new(TimerCallback, null, -1, -1);
+        static string secondPlaayer = string.Empty;
+        static string activePlayer = string.Empty;
         static bool isTimeOut = false;
+        static bool gameFinished = false;
+        static Timer turnTimer;
+
+        static ScoreService scoreService;
+        static CommandService commandService;
 
         static void Main(string[] args)
         {
             InitializeGame(out Queue<string> players, out List<string> usedWords);
-            bool prevFailed = false;
 
+            var (wins1, wins2, draws) = scoreService.GetCurrentScore(players.Peek(), players.Last());
+            Console.WriteLine(Resource.CurrentScore, players.Peek(), wins1, wins2, players.Last(), draws);
+
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                if (!gameFinished && !string.IsNullOrEmpty(activePlayer))
+                {
+                    var loser = activePlayer;
+                    var winner = loser == firstPlayer ? players.Last() : firstPlayer;
+                    scoreService.AddResult(new GameResult { Player1 = players.First(), Player2 = players.Last(), Winner = winner });
+                }
+            };
+
+            bool prevFailed = false;
             while (players.Count > 0)
             {
-                string activePlayer = players.Dequeue();
-
+                activePlayer = players.Dequeue();
                 bool moveSuccess = TryExecTurn(activePlayer, usedWords, out bool validMove);
 
                 if (!moveSuccess)
@@ -34,6 +54,8 @@ namespace WordsGame
                     {
                         case (true, _):
                             Console.WriteLine($"{Resource.Draw}!");
+                            scoreService.AddResult(new GameResult { Player1 = players.First(), Player2 = players.Last(), Winner = GameResult.DRAW });
+                            gameFinished = true;
                             return;
                         case (false, true):
                             prevFailed = true;
@@ -41,6 +63,8 @@ namespace WordsGame
                             continue;
                         case (false, false):
                             Console.WriteLine($"{firstPlayer} {Resource.Win}!");
+                            scoreService.AddResult(new GameResult { Player1 = players.First(), Player2 = players.Last(), Winner = firstPlayer });
+                            gameFinished = true;
                             return;
                     }
                 }
@@ -51,7 +75,17 @@ namespace WordsGame
 
                 if (players.Count == 0)
                 {
-                    Console.WriteLine(validMove ? $"{activePlayer} {Resource.Win}!" : $"{Resource.Draw}!");
+                    string resultMessage = validMove ? $"{activePlayer} {Resource.Win}!" : $"{Resource.Draw}!";
+                    Console.WriteLine(resultMessage);
+
+                    string winner = validMove ? activePlayer : GameResult.DRAW;
+                    scoreService.AddResult(new GameResult
+                    {
+                        Player1 = firstPlayer,
+                        Player2 = secondPlaayer,
+                        Winner = winner
+                    });
+                    gameFinished = true;
                     break;
                 }
 
@@ -62,38 +96,30 @@ namespace WordsGame
         static void InitializeGame(out Queue<string> players, out List<string> usedWords)
         {
             SelectLanguage();
-
-            string player = Resource.Player;
-            players = new Queue<string>([$"{player} 1", $"{player} 2"]);
-            usedWords = [];
-            firstPlayer = players.Peek();
-
             Console.WriteLine(Resource.Meething);
+
+            string name1 = ReadName(string.Format(Resource.EnterPlayerName, 1), Resource.Player + " 1");
+            string name2 = ReadName(string.Format(Resource.EnterPlayerName, 2), Resource.Player + " 2");
+
+
+            players = new Queue<string>([name1, name2]);
+            usedWords = new List<string>();
+            firstPlayer = players.Peek();
+            secondPlaayer = players.Last();
+            scoreService = new ScoreService();
+            commandService = new CommandService(scoreService, players, usedWords);
+
             baseWord = GetValidBaseWord();
             Console.WriteLine(Resource.StartGame + baseWord);
+
+            turnTimer = new Timer(TimerCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
 
-        static bool TryExecTurn(string activePlayer, List<string> usedWords, out bool validMove)
+        static string ReadName(string prompt, string defaultName)
         {
-            isTimeOut = false;
-            Console.Write($"{activePlayer} {Resource.Turn}: ");
-            turnTimer.Change(TIMER_DURATION, -1);
-            newWord = GetNewWord();
-
-            validMove = !usedWords.Contains(newWord) && IsValidWord();
-            if (!isTimeOut && validMove)
-            {
-                Console.WriteLine($" > {newWord}");
-                usedWords.Add(newWord);
-                return true;
-            }
-            return false;
-        }
-
-        static void SelectLanguage()
-        {
-            Console.WriteLine("Выберите язык/Select language:\n1 - Русский, 2 - English, Default - English");
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo(Console.ReadLine() == "1" ? "ru" : "en");
+            Console.Write(prompt);
+            string? input = Console.ReadLine()?.Trim();
+            return string.IsNullOrWhiteSpace(input) ? defaultName : input;
         }
 
         static string GetValidBaseWord()
@@ -102,21 +128,61 @@ namespace WordsGame
             do
             {
                 Console.Write(Resource.EnterBaseWord);
-                word = (Console.ReadLine() ?? "").Trim().ToLower();
+                word = (Console.ReadLine() ?? string.Empty).Trim().ToLower();
             }
             while (word.Length < MIN_LENGTH || word.Length > MAX_LENGTH);
             return word;
         }
 
+        static bool TryExecTurn(string activePlayer, List<string> usedWords, out bool validMove)
+        {
+            isTimeOut = false;
+
+            while (true)
+            {
+                Console.Write(activePlayer + " " + Resource.Turn + ": ");
+                turnTimer.Change(TIMER_DURATION, Timeout.Infinite);
+
+                newWord = GetNewWord();
+
+                turnTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+                if (newWord.StartsWith("/"))
+                {
+                    commandService.TryHandle(newWord);
+                    Console.WriteLine(Resource.Continue);
+                    Console.ReadLine();
+                    continue;
+                }
+
+                validMove = !usedWords.Contains(newWord) && IsValidWord();
+
+                if (!isTimeOut && validMove)
+                {
+                    Console.WriteLine(" > " + newWord);
+                    usedWords.Add(newWord);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+
+        static void SelectLanguage()
+        {
+            Console.WriteLine("Выберите язык/Select language:\n1 - Русский, 2 - English, Default - English");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(Console.ReadLine() == "1" ? "ru" : "en");
+        }
+
         static string GetNewWord()
         {
-            StringBuilder input = new StringBuilder();
+            var input = new StringBuilder();
             while (!isTimeOut)
             {
                 if (Console.KeyAvailable)
                 {
                     var key = Console.ReadKey(true);
-
                     if (key.Key == ConsoleKey.Backspace)
                     {
                         if (input.Length > 0)
@@ -124,10 +190,8 @@ namespace WordsGame
                             input.Length--;
                             Console.Write("\b \b");
                         }
-                        continue;
                     }
-
-                    if (key.Key == ConsoleKey.Enter)
+                    else if (key.Key == ConsoleKey.Enter)
                     {
                         if (input.Length >= MIN_NEW_WORD_LENGTH)
                             break;
@@ -142,7 +206,6 @@ namespace WordsGame
                 }
                 Thread.Sleep(50);
             }
-
             Console.WriteLine();
             return input.ToString().Trim().ToLower();
         }
@@ -154,7 +217,7 @@ namespace WordsGame
 
         static void TimerCallback(object? state)
         {
-            Console.Write($" {Resource.TimeIsUp}");
+            Console.WriteLine(Resource.TimeIsUp);
             isTimeOut = true;
         }
     }

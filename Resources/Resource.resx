@@ -139,6 +139,15 @@ Rules:
     <value>Current store: {0} {1} - {2} {3}, draw: {4}</value>
   </data>
   <data name="EnterPlayerName" xml:space="preserve">
-    <value>Enter the player's name:</value>
+    <value>Enter the player's name {0}: </value>
+  </data>
+  <data name="ShowWordsTitle" xml:space="preserve">
+    <value>Words for this game:</value>
+  </data>
+  <data name="TotalScore" xml:space="preserve">
+    <value>General score of all players:</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Again?</value>
   </data>
 </root>
