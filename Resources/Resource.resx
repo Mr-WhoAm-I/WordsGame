@@ -135,4 +135,10 @@ Rules:
   <data name="LastMove" xml:space="preserve">
     <value>Last move</value>
   </data>
+  <data name="CurrentScore" xml:space="preserve">
+    <value>Current store: {0} {1} - {2} {3}, draw: {4}</value>
+  </data>
+  <data name="EnterPlayerName" xml:space="preserve">
+    <value>Enter the player's name:</value>
+  </data>
 </root>

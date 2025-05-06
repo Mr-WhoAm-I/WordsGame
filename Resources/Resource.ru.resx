@@ -155,4 +155,10 @@
   <data name="LastMove" xml:space="preserve">
     <value>Последний ход</value>
   </data>
+  <data name="CurrentScore" xml:space="preserve">
+    <value>Текущий счет: {0} {1} - {2} {3}, Ничьи: {4}</value>
+  </data>
+  <data name="EnterPlayerName" xml:space="preserve">
+    <value>Введите имя игрока:</value>
+  </data>
 </root>
